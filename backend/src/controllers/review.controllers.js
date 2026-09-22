@@ -7,10 +7,10 @@
  *
  */
 
-const Booking = require('../models/booking.model');
-const Review = require('../models/review.modal');
-const { errorResponse, successResponse } = require('../configs/app.response');
-const MyQueryHelper = require('../configs/api.feature');
+const Booking = require("../models/booking.model");
+const Review = require("../models/review.modal");
+const { errorResponse, successResponse } = require("../configs/app.response");
+const MyQueryHelper = require("../configs/api.feature");
 
 // TODO: controller for room review add
 exports.roomReviewAdd = async (req, res) => {
@@ -19,20 +19,16 @@ exports.roomReviewAdd = async (req, res) => {
 
     // check `rating` filed exits
     if (!rating) {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        '`rating` filed is required'
-      ));
+      return res
+        .status(400)
+        .json(errorResponse(1, "FAILED", "`rating` filed is required"));
     }
 
     // check `message` filed exits
     if (!message) {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        '`message` filed is required'
-      ));
+      return res
+        .status(400)
+        .json(errorResponse(1, "FAILED", "`message` filed is required"));
     }
 
     // finding by a booking by id
@@ -41,38 +37,48 @@ exports.roomReviewAdd = async (req, res) => {
     if (/^[0-9a-fA-F]{24}$/.test(req.params.id)) {
       myBooking = await Booking.findById(req.params.id);
     } else {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        'Something went wrong. Probably booking id missing/incorrect'
-      ));
+      return res
+        .status(400)
+        .json(
+          errorResponse(
+            1,
+            "FAILED",
+            "Something went wrong. Probably booking id missing/incorrect",
+          ),
+        );
     }
 
     // check room available
     if (!myBooking) {
-      return res.status(404).json(errorResponse(
-        4,
-        'UNKNOWN ACCESS',
-        'Booking does not exist'
-      ));
+      return res
+        .status(404)
+        .json(errorResponse(4, "UNKNOWN ACCESS", "Booking does not exist"));
     }
 
     // check booking already add reviews
     if (myBooking.reviews) {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        'Sorry! This booking already add an review'
-      ));
+      return res
+        .status(400)
+        .json(
+          errorResponse(
+            1,
+            "FAILED",
+            "Sorry! This booking already add an review",
+          ),
+        );
     }
 
     // check booking status is `in-reviews`
-    if (myBooking.booking_status !== 'in-reviews') {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        'Invalid booking status for adding a review'
-      ));
+    if (myBooking.booking_status !== "in-reviews") {
+      return res
+        .status(400)
+        .json(
+          errorResponse(
+            1,
+            "FAILED",
+            "Invalid booking status for adding a review",
+          ),
+        );
     }
 
     // create a user new room review
@@ -81,7 +87,7 @@ exports.roomReviewAdd = async (req, res) => {
       room_id: myBooking.room_id,
       booking_id: req.params.id,
       rating,
-      message
+      message,
     });
 
     // save the review in database
@@ -89,22 +95,22 @@ exports.roomReviewAdd = async (req, res) => {
 
     // update the booking with the review ID
     myBooking.reviews = savedReview._id;
-    myBooking.booking_status = 'completed';
+    myBooking.booking_status = "completed";
     await myBooking.save({ validateBeforeSave: false });
 
     // success response with register new user
-    res.status(201).json(successResponse(
-      0,
-      'SUCCESS',
-      'Your room booking order placed successful',
-      savedReview
-    ));
+    res
+      .status(201)
+      .json(
+        successResponse(
+          0,
+          "SUCCESS",
+          "Your room booking order placed successful",
+          savedReview,
+        ),
+      );
   } catch (error) {
-    res.status(500).json(errorResponse(
-      2,
-      'SERVER SIDE ERROR',
-      error
-    ));
+    res.status(500).json(errorResponse(2, "SERVER SIDE ERROR", error));
   }
 };
 
@@ -115,28 +121,33 @@ exports.getRoomReviewsList = async (req, res) => {
     let myReviews = null;
 
     if (/^[0-9a-fA-F]{24}$/.test(req.params.room_id)) {
-      myReviews = await Review.find({ room_id: req.params.room_id })
-        .populate('user_id');
+      myReviews = await Review.find({ room_id: req.params.room_id }).populate(
+        "user_id",
+      );
     } else {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        'Something went wrong. Probably booking id missing/incorrect'
-      ));
+      return res
+        .status(400)
+        .json(
+          errorResponse(
+            1,
+            "FAILED",
+            "Something went wrong. Probably booking id missing/incorrect",
+          ),
+        );
     }
 
     // check review available
-    if (!myReviews) {
-      return res.status(404).json(errorResponse(
-        4,
-        'UNKNOWN ACCESS',
-        'Review does not exist'
-      ));
+    if (myReviews === null || myReviews === undefined) {
+      return res
+        .status(404)
+        .json(errorResponse(4, "UNKNOWN ACCESS", "Room does not exist"));
     }
 
     // filtering reviews based on different types query
-    const reviewQuery = new MyQueryHelper(Review.find({ room_id: req.params.room_id })
-      .populate('user_id'), req.query)
+    const reviewQuery = new MyQueryHelper(
+      Review.find({ room_id: req.params.room_id }).populate("user_id"),
+      req.query,
+    )
       .sort()
       .paginate();
     const findReviews = await reviewQuery.query;
@@ -161,31 +172,25 @@ exports.getRoomReviewsList = async (req, res) => {
         verified: data?.user_id?.verified,
         status: data?.user_id?.status,
         createdAt: data?.user_id?.createdAt,
-        updatedAt: data?.user_id?.updatedAt
+        updatedAt: data?.user_id?.updatedAt,
       },
       created_at: data?.createdAt,
-      updated_at: data?.updatedAt
+      updated_at: data?.updatedAt,
     }));
 
     // success response with the reviews list
-    res.status(200).json(successResponse(
-      0,
-      'SUCCESS',
-      'Reviews list retrieved successful',
-      {
+    const limit = req?.query?.limit ? parseInt(req.query.limit, 10) : 10;
+    res.status(200).json(
+      successResponse(0, "SUCCESS", "Reviews list retrieved successful", {
         rows: mapperReviews,
         total_rows: myReviews.length,
         response_rows: findReviews.length,
-        total_page: req?.query?.keyword ? Math.ceil(findReviews.length / req.query.limit) : Math.ceil(myReviews.length / req.query.limit),
-        current_page: req?.query?.page ? parseInt(req.query.page, 10) : 1
-      }
-    ));
+        total_page: Math.ceil(myReviews.length / limit),
+        current_page: req?.query?.page ? parseInt(req.query.page, 10) : 1,
+      }),
+    );
   } catch (error) {
-    res.status(500).json(errorResponse(
-      2,
-      'SERVER SIDE ERROR',
-      error
-    ));
+    res.status(500).json(errorResponse(2, "SERVER SIDE ERROR", error));
   }
 };
 
@@ -196,72 +201,75 @@ exports.editSelfRoomReview = async (req, res) => {
 
     // check `rating` filed exits
     if (!rating) {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        '`rating` filed is required'
-      ));
+      return res
+        .status(400)
+        .json(errorResponse(1, "FAILED", "`rating` filed is required"));
     }
 
     // check `message` filed exits
     if (!message) {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        '`message` filed is required'
-      ));
+      return res
+        .status(400)
+        .json(errorResponse(1, "FAILED", "`message` filed is required"));
     }
 
     // finding by a review by id
     let myReviews = null;
 
     if (/^[0-9a-fA-F]{24}$/.test(req.params.review_id)) {
-      myReviews = await Review.findById(req.params.review_id)
-        .populate('user_id');
+      myReviews = await Review.findById(req.params.review_id).populate(
+        "user_id",
+      );
     } else {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        'Something went wrong. Probably booking id missing/incorrect'
-      ));
+      return res
+        .status(400)
+        .json(
+          errorResponse(
+            1,
+            "FAILED",
+            "Something went wrong. Probably booking id missing/incorrect",
+          ),
+        );
     }
 
     // check review available
     if (!myReviews) {
-      return res.status(404).json(errorResponse(
-        4,
-        'UNKNOWN ACCESS',
-        'Review does not exist'
-      ));
+      return res
+        .status(404)
+        .json(errorResponse(4, "UNKNOWN ACCESS", "Review does not exist"));
     }
 
     if (myReviews?.user_id?.id !== req?.user?.id) {
-      return res.status(406).json(errorResponse(
-        6,
-        'UNABLE TO ACCESS',
-        'Sorry! You can update only self room reviews'
-      ));
+      return res
+        .status(406)
+        .json(
+          errorResponse(
+            6,
+            "UNABLE TO ACCESS",
+            "Sorry! You can update only self room reviews",
+          ),
+        );
     }
 
     // update review info & save database
     const updatedReview = await Review.findByIdAndUpdate(
       req.params.review_id,
       { rating, message },
-      { runValidators: true, new: true }
+      { runValidators: true, new: true },
     );
 
     // success response with the update review
-    res.status(200).json(successResponse(
-      0,
-      'SUCCESS',
-      'Your room review update successful',
-      updatedReview
-    ));
+    res
+      .status(200)
+      .json(
+        successResponse(
+          0,
+          "SUCCESS",
+          "Your room review update successful",
+          updatedReview,
+        ),
+      );
   } catch (error) {
-    res.status(500).json(errorResponse(
-      2,
-      'SERVER SIDE ERROR',
-      error
-    ));
+    res.status(500).json(errorResponse(2, "SERVER SIDE ERROR", error));
   }
 };

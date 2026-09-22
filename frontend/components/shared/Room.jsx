@@ -15,7 +15,7 @@ function Room({ room }) {
     <article className='room'>
       <div className='img-container'>
         <img
-          src={room?.room_images[0]?.url || '/img/jpeg/room-1.jpeg'}
+          src={room?.room_images[0]?.url || '/images/jpeg/room-1.jpeg'}
           alt='single room'
         />
 

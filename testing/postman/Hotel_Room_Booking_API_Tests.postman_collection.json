@@ -1,0 +1,203 @@
+{
+  "info": {
+    "name": "Hotel Room Booking System - API Tests",
+    "description": "20 API Test Cases - Postman Collection\nVersion: 1.0\nDate: April 22, 2026",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POSTMAN-01: User Registration - Valid Data",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {"raw": "http://localhost:5000/api/v1/auth/register", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "auth", "register"]},
+        "body": {"mode": "raw", "raw": "{\"name\": \"John Doe\", \"email\": \"john@example.com\", \"password\": \"Pass@123\"}"}
+      },
+      "response": {"status": "201", "body": "{\"token\": \"eyJhbGc...\", \"userId\": 1}"}
+    },
+    {
+      "name": "POSTMAN-02: User Login - Valid Credentials",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {"raw": "http://localhost:5000/api/v1/auth/login", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "auth", "login"]},
+        "body": {"mode": "raw", "raw": "{\"email\": \"john@example.com\", \"password\": \"Pass@123\"}"}
+      },
+      "response": {"status": "200", "body": "{\"token\": \"eyJhbGc...\", \"user\": {}}"}
+    },
+    {
+      "name": "POSTMAN-03: User Login - Invalid Password",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {"raw": "http://localhost:5000/api/v1/auth/login", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "auth", "login"]},
+        "body": {"mode": "raw", "raw": "{\"email\": \"john@example.com\", \"password\": \"WrongPass\"}"}
+      },
+      "response": {"status": "401", "body": "{\"error\": \"Invalid credentials\"}"}
+    },
+    {
+      "name": "POSTMAN-04: Get All Rooms",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms"]}
+      },
+      "response": {"status": "200", "body": "{\"rooms\": [...], \"total\": 10}"}
+    },
+    {
+      "name": "POSTMAN-05: Get Room by ID",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms/1", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms", "1"]}
+      },
+      "response": {"status": "200", "body": "{\"id\": 1, \"name\": \"Deluxe Room\", \"price\": 150}"}
+    },
+    {
+      "name": "POSTMAN-06: Get Available Rooms - Date Range",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms/available?startDate=2026-05-10&endDate=2026-05-15", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms", "available"], "query": [{"key": "startDate", "value": "2026-05-10"}, {"key": "endDate", "value": "2026-05-15"}]}
+      },
+      "response": {"status": "200", "body": "{\"available\": [...]}"}
+    },
+    {
+      "name": "POSTMAN-07: Create Booking - Valid Data",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings"]},
+        "body": {"mode": "raw", "raw": "{\"roomId\": 1, \"checkIn\": \"2026-05-10\", \"checkOut\": \"2026-05-15\", \"guests\": 2}"}
+      },
+      "response": {"status": "201", "body": "{\"bookingId\": 1, \"status\": \"confirmed\"}"}
+    },
+    {
+      "name": "POSTMAN-08: Create Booking - Overlapping Dates",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings"]},
+        "body": {"mode": "raw", "raw": "{\"roomId\": 1, \"checkIn\": \"2026-05-12\", \"checkOut\": \"2026-05-20\", \"guests\": 2}"}
+      },
+      "response": {"status": "409", "body": "{\"error\": \"Room not available for selected dates\"}"}
+    },
+    {
+      "name": "POSTMAN-09: Get User Bookings",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings"]}
+      },
+      "response": {"status": "200", "body": "{\"bookings\": [...]}"}
+    },
+    {
+      "name": "POSTMAN-10: Cancel Booking",
+      "request": {
+        "method": "DELETE",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings/1", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings", "1"]}
+      },
+      "response": {"status": "200", "body": "{\"status\": \"cancelled\"}"}
+    },
+    {
+      "name": "POSTMAN-11: Update Booking Dates",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings/1", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings", "1"]},
+        "body": {"mode": "raw", "raw": "{\"checkIn\": \"2026-05-20\", \"checkOut\": \"2026-05-25\"}"}
+      },
+      "response": {"status": "200", "body": "{\"bookingId\": 1, \"updated\": true}"}
+    },
+    {
+      "name": "POSTMAN-12: Create Review - Valid Rating",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/reviews", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "reviews"]},
+        "body": {"mode": "raw", "raw": "{\"roomId\": 1, \"rating\": 4.5, \"comment\": \"Great room!\"}"}
+      },
+      "response": {"status": "201", "body": "{\"reviewId\": 1, \"created\": true}"}
+    },
+    {
+      "name": "POSTMAN-13: Create Review - Invalid Rating",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/reviews", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "reviews"]},
+        "body": {"mode": "raw", "raw": "{\"roomId\": 1, \"rating\": 6, \"comment\": \"Invalid rating\"}"}
+      },
+      "response": {"status": "400", "body": "{\"error\": \"Rating must be between 1 and 5\"}"}
+    },
+    {
+      "name": "POSTMAN-14: Get Room Reviews",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms/1/reviews", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms", "1", "reviews"]}
+      },
+      "response": {"status": "200", "body": "{\"reviews\": [...], \"average\": 4.5}"}
+    },
+    {
+      "name": "POSTMAN-15: Token Expiry Test",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{expiredToken}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings"]}
+      },
+      "response": {"status": "401", "body": "{\"error\": \"Token expired\"}"}
+    },
+    {
+      "name": "POSTMAN-16: Response Time - GET /api/rooms",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms"]},
+        "description": "Expected response time: < 500ms"
+      },
+      "response": {"status": "200"}
+    },
+    {
+      "name": "POSTMAN-17: Response Time - POST /api/bookings",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": {"raw": "http://localhost:5000/api/v1/bookings", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "bookings"]},
+        "body": {"mode": "raw", "raw": "{\"roomId\": 2, \"checkIn\": \"2026-06-01\", \"checkOut\": \"2026-06-05\"}"},
+        "description": "Expected response time: < 500ms"
+      },
+      "response": {"status": "201"}
+    },
+    {
+      "name": "POSTMAN-18: CORS Headers Validation",
+      "request": {
+        "method": "OPTIONS",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms"]},
+        "description": "Verify CORS headers are present"
+      },
+      "response": {"status": "200", "headers": ["Access-Control-Allow-Origin", "Access-Control-Allow-Methods"]}
+    },
+    {
+      "name": "POSTMAN-19: Error Handling - 500 Server Error",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/invalid-endpoint", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "invalid-endpoint"]},
+        "description": "Test error response handling"
+      },
+      "response": {"status": "404", "body": "{\"error\": \"Endpoint not found\"}"}
+    },
+    {
+      "name": "POSTMAN-20: Filter Rooms by Price Range",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "http://localhost:5000/api/v1/rooms?minPrice=100&maxPrice=200", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "rooms"], "query": [{"key": "minPrice", "value": "100"}, {"key": "maxPrice", "value": "200"}]},
+        "description": "Get rooms within price range"
+      },
+      "response": {"status": "200", "body": "{\"rooms\": [...], \"filtered\": true}"}
+    }
+  ],
+  "variable": [
+    {"key": "token", "value": ""},
+    {"key": "expiredToken", "value": ""},
+    {"key": "bookingId", "value": ""},
+    {"key": "roomId", "value": "1"}
+  ]
+}
+
+

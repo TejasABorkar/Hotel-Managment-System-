@@ -45,25 +45,13 @@ function Rooms(props) {
       {/* featured rooms */}
       <Skeleton loading={!props?.rooms && !props?.error} paragraph={{ rows: 10 }} active>
         {props?.rooms?.data?.rows?.length === 0 ? (
-          <Empty
-            className='mt-10'
-            description={(<span>Sorry! Any data was not found.</span>)}
-          />
+          <Empty className='mt-10' description={<span>Sorry! Any data was not found.</span>} />
         ) : props?.error ? (
-          <Result
-            title='Failed to fetch'
-            subTitle={props?.error?.message || 'Sorry! Something went wrong. App server error'}
-            status='error'
-          />
+          <Result title='Failed to fetch' subTitle={props?.error?.message || 'Sorry! Something went wrong. App server error'} status='error' />
         ) : (
           <>
-            <RoomFilter
-              ourRooms={ourRooms}
-              setOurFilteredRooms={setOurFilteredRooms}
-            />
-            <RoomList
-              rooms={ourFilteredRooms}
-            />
+            <RoomFilter ourRooms={ourRooms} setOurFilteredRooms={setOurFilteredRooms} />
+            <RoomList rooms={ourFilteredRooms} />
           </>
         )}
       </Skeleton>
@@ -80,15 +68,15 @@ export async function getServerSideProps() {
     return {
       props: {
         rooms,
-        error: null
-      }
+        error: null,
+      },
     };
   } catch (err) {
     return {
       props: {
         rooms: null,
-        error: err?.data
-      }
+        error: err?.response?.data || null,
+      },
     };
   }
 }

@@ -10,8 +10,10 @@
 import axios from 'axios';
 import { getSessionToken, removeSessionAndLogoutUser } from './authentication';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
 const ApiService = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL
+  baseURL: API_BASE_URL
 });
 
 /**
@@ -57,7 +59,7 @@ ApiService.interceptors.response.use(
     }
 
     // eslint-disable-next-line no-underscore-dangle
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error?.response?.status === 401 && !originalRequest._retry) {
       // if authorized to logout user and redirect login page
       removeSessionAndLogoutUser();
     }

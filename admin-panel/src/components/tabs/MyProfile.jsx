@@ -19,6 +19,8 @@ import notificationWithIcon from '../../utils/notification';
 import { userStatusAsResponse } from '../../utils/responseAsStatus';
 import ProfileEditModal from '../shared/ProfileEditModal';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
 function MyProfile() {
   const token = getSessionToken();
   const [editProfileModal, setEditProfileModal] = useState(false);
@@ -30,7 +32,7 @@ function MyProfile() {
   const props = {
     accept: 'image/*',
     name: 'avatar',
-    action: `${process.env.REACT_APP_API_BASE_URL}/api/v1/avatar-update`,
+    action: `${API_BASE_URL}/api/v1/avatar-update`,
     method: 'put',
     headers: { authorization: `Bearer ${token}` },
     onChange(info) {

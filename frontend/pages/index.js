@@ -24,10 +24,7 @@ function Home(props) {
   return (
     <MainLayout title='Beach Resort ― Home'>
       <Hero>
-        <Banner
-          title='luxurious rooms'
-          subtitle='deluxe rooms starting at $299'
-        >
+        <Banner title='luxurious rooms' subtitle='deluxe rooms starting at $299'>
           <Link href='/rooms' className='btn-primary'>
             our rooms
           </Link>
@@ -37,22 +34,7 @@ function Home(props) {
 
       {/* featured rooms */}
       <Skeleton loading={!props?.featuredRooms && !props?.error} paragraph={{ rows: 5 }} active>
-        {props?.featuredRooms?.data?.rows?.length === 0 ? (
-          <Empty
-            className='mt-10'
-            description={(<span>Sorry! Any data was not found.</span>)}
-          />
-        ) : props?.error ? (
-          <Result
-            title='Failed to fetch'
-            subTitle={props?.error?.message || 'Sorry! Something went wrong. App server error'}
-            status='error'
-          />
-        ) : (
-          <FeaturedRooms
-            featuredRoom={props?.featuredRooms?.data?.rows}
-          />
-        )}
+        {props?.featuredRooms?.data?.rows?.length === 0 ? <Empty className='mt-10' description={<span>Sorry! Any data was not found.</span>} /> : props?.error ? <Result title='Failed to fetch' subTitle={props?.error?.message || 'Sorry! Something went wrong. App server error'} status='error' /> : <FeaturedRooms featuredRoom={props?.featuredRooms?.data?.rows} />}
       </Skeleton>
     </MainLayout>
   );
@@ -67,15 +49,15 @@ export async function getServerSideProps() {
     return {
       props: {
         featuredRooms,
-        error: null
-      }
+        error: null,
+      },
     };
   } catch (err) {
     return {
       props: {
         featuredRooms: null,
-        error: err?.data
-      }
+        error: err?.response?.data || null,
+      },
     };
   }
 }
